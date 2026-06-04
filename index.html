@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TheGate — Project Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --ink2: #2d2d44;
+    --muted: #6b6b85;
+    --faint: #e8e8f0;
+    --line: #dddde8;
+    --bg: #f5f5fa;
+    --white: #ffffff;
+    --blue: #0057b8;
+    --blue-light: #e8f0fb;
+    --green: #1a7a4a;
+    --green-light: #e6f4ed;
+    --amber: #a05c00;
+    --amber-light: #fef3e2;
+    --red: #c0392b;
+    --red-light: #fdecea;
+    --accent: #0057b8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: white;
+    padding: 40px 48px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: rgba(0,87,184,0.15);
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 200px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(0,87,184,0.08);
+  }
+
+  .header-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 10px;
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 42px;
+    line-height: 1.1;
+    color: white;
+    margin-bottom: 6px;
+  }
+
+  header h1 em {
+    font-style: italic;
+    color: rgba(255,255,255,0.6);
+  }
+
+  header p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    margin-top: 8px;
+    font-weight: 300;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 28px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .stat {
+    text-align: left;
+  }
+
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: white;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-top: 4px;
+  }
+
+  .progress-bar-wrap {
+    margin-top: 24px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 99px;
+    height: 4px;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: #4a9eff;
+    border-radius: 99px;
+    transition: width 0.6s ease;
+  }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── PHASE CARD ── */
+  .phase {
+    background: var(--white);
+    border-radius: 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--line);
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+
+  .phase:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  }
+
+  .phase.done {
+    border-color: #b8dfc9;
+    background: #fafffe;
+  }
+
+  .phase.active {
+    border-color: #a8c4e8;
+    background: #fafcff;
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .phase-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    min-width: 28px;
+    letter-spacing: .04em;
+  }
+
+  .phase-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+  }
+
+  .phase-check:hover {
+    border-color: var(--blue);
+  }
+
+  .phase-check.checked {
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  .phase-check.checked::after {
+    content: '✓';
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .phase-check.inprogress {
+    border-color: var(--blue);
+    background: var(--blue-light);
+  }
+
+  .phase-check.inprogress::after {
+    content: '●';
+    color: var(--blue);
+    font-size: 10px;
+  }
+
+  .phase-title {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .phase.done .phase-title {
+    color: var(--green);
+  }
+
+  .phase-tag {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 99px;
+    font-weight: 500;
+    white-space: nowrap;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: .02em;
+  }
+
+  .tag-done { background: var(--green-light); color: var(--green); }
+  .tag-next { background: var(--blue-light); color: var(--blue); }
+  .tag-upcoming { background: var(--faint); color: var(--muted); }
+  .tag-heavy { background: var(--amber-light); color: var(--amber); }
+
+  .phase-expand {
+    font-size: 12px;
+    color: var(--muted);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .phase-body {
+    display: none;
+    padding: 0 20px 18px 64px;
+    border-top: 1px solid var(--line);
+  }
+
+  .phase-body.open {
+    display: block;
+  }
+
+  .phase-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    padding-top: 14px;
+    margin-bottom: 14px;
+  }
+
+  .task-list {
+    list-style: none;
+    margin-bottom: 14px;
+  }
+
+  .task-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink2);
+    padding: 4px 0;
+    line-height: 1.5;
+  }
+
+  .task-list li::before {
+    content: '—';
+    color: var(--line);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .effort-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 12px;
+  }
+
+  .effort-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+
+  .effort-dot.filled { background: var(--blue); }
+
+  /* ── NOTES ── */
+  .note-area {
+    width: 100%;
+    min-height: 60px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.6;
+  }
+
+  .note-area:focus {
+    border-color: var(--blue);
+    background: white;
+  }
+
+  .note-area::placeholder {
+    color: var(--muted);
+    opacity: 0.5;
+  }
+
+  .note-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 6px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── STATUS TOGGLE ── */
+  .status-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .status-btn {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: white;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    transition: all 0.15s;
+  }
+
+  .status-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .status-btn.active-todo { background: var(--faint); color: var(--ink); border-color: var(--line); }
+  .status-btn.active-progress { background: var(--blue-light); color: var(--blue); border-color: var(--blue); }
+  .status-btn.active-done { background: var(--green-light); color: var(--green); border-color: var(--green); }
+
+  /* ── SECTION DIVIDER ── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: var(--muted);
+    padding: 24px 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  /* ── SAVE NOTICE ── */
+  .save-notice {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--ink);
+    color: white;
+    font-size: 12px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.3s;
+    pointer-events: none;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .save-notice.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-eyebrow">YWAM Perth · ywamperth/TheGate</div>
+  <h1>The<em>Gate</em> — Build Plan</h1>
+  <p>Next.js · Supabase · Vercel · Square · Resend</p>
+  <div class="header-stats">
+    <div class="stat">
+      <div class="stat-num" id="stat-done">1</div>
+      <div class="stat-label">Phases done</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">16</div>
+      <div class="stat-label">Total phases</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="stat-pct">6%</div>
+      <div class="stat-label">Complete</div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-fill" style="width:6%"></div>
+  </div>
+</header>
+
+<main>
+
+<div class="section-label">Foundation</div>
+
+<!-- Phase 1 -->
+<div class="phase done" id="phase-1">
+  <div class="phase-header" onclick="togglePhase('phase-1')">
+    <span class="phase-num">01</span>
+    <div class="phase-check checked" onclick="event.stopPropagation(); cycleStatus('phase-1')"></div>
+    <span class="phase-title">Supabase schema + RLS policies</span>
+    <span class="phase-tag tag-done">Done</span>
+    <span class="phase-expand" id="arrow-phase-1">▸</span>
+  </div>
+  <div class="phase-body" id="body-phase-1">
+    <p class="phase-desc">All 23 database tables created and Row Level Security policies applied. The entire data model is in place — students, applications, health, references, payments, audit trail.</p>
+    <ul class="task-list">
+      <li>23 tables created in Supabase ywam-staging</li>
+      <li>RLS enabled on all tables</li>
+      <li>Helper functions: is_rego(), is_leader(), is_assigned_program()</li>
+      <li>Full permission matrix: student / rego / leader / super leader</li>
+      <li>Mental health stored in separate table with strictest RLS</li>
+      <li>Audit log with indexes for performance</li>
+    </ul>
+    <div class="note-label">Notes</div>
+    <textarea class="note-area" id="note-phase-1" placeholder="Add your notes here..." onchange="saveNotes()"></textarea>
+  </div>
+</div>
+
+<!-- Phase 2 -->
+<div class="phase" id="phase-2">
+  <div class="phase-header" onclick="togglePhase('phase-2')">
+    <span class="phase-num">02</span>
+    <div class="phase-check" onclick="event.stopPropagation(); cycleStatus('phase-2')"></div>
+    <span class="phase-title">Authentication — student login, admin login, referee token</span>
+    <span class="phase-tag tag-next">Up next</span>
+    <span class="phase-expand" id="arrow-phase-2">▸</span>
+  </div>
+  <div class="phase-body" id="body-phase-2">
+    <p class="phase-desc">Set up Supabase Auth for all three entry points: student email/password login, rego/leader login with MFA, and the unique one-time referee token system.</p>
+    <div class="effort-badge">
+      <span>Effort:</span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot"></span>
+      <span class="effort-dot"></span>
+      <span>Light — 1 session</span>
+    </div>
+    <ul class="task-list">
+      <li>Supabase Auth email/password for students</li>
+      <li>MFA setup for rego office and leaders</li>
+      <li>Referee token generation and validation</li>
+      <li>Auth middleware in Next.js</li>
+      <li>Protected routes per role</li>
+    </ul>
+    <div class="status-row">
+      <button class="status-btn active-todo" onclick="setStatus(this, 'phase-2', 'todo')">To do</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-2', 'progress')">In progress</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-2', 'done')">Done</button>
+    </div>
+    <div class="note-label">Notes</div>
+    <textarea class="note-area" id="note-phase-2" placeholder="Add your notes here..." onchange="saveNotes()"></textarea>
+  </div>
+</div>
+
+<!-- Phase 3 -->
+<div class="phase" id="phase-3">
+  <div class="phase-header" onclick="togglePhase('phase-3')">
+    <span class="phase-num">03</span>
+    <div class="phase-check" onclick="event.stopPropagation(); cycleStatus('phase-3')"></div>
+    <span class="phase-title">Public registration page + Square payment ($30)</span>
+    <span class="phase-tag tag-upcoming">Upcoming</span>
+    <span class="phase-expand" id="arrow-phase-3">▸</span>
+  </div>
+  <div class="phase-body" id="body-phase-3">
+    <p class="phase-desc">The first page any student sees. Choose a program, enter details, pay the $30 registration fee via Square. Creates the person and application records.</p>
+    <div class="effort-badge">
+      <span>Effort:</span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot"></span>
+      <span>Medium — 1–2 sessions</span>
+    </div>
+    <ul class="task-list">
+      <li>Program selection dropdown (active programs only)</li>
+      <li>Personal details form (name, email, phone)</li>
+      <li>Square payment integration ($30 AUD)</li>
+      <li>Create person + application records on payment success</li>
+      <li>Send confirmation email via Resend</li>
+      <li>Redirect to student portal after registration</li>
+    </ul>
+    <div class="status-row">
+      <button class="status-btn active-todo" onclick="setStatus(this, 'phase-3', 'todo')">To do</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-3', 'progress')">In progress</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-3', 'done')">Done</button>
+    </div>
+    <div class="note-label">Notes</div>
+    <textarea class="note-area" id="note-phase-3" placeholder="Add your notes here..." onchange="saveNotes()"></textarea>
+  </div>
+</div>
+
+<div class="section-label">Student Portal</div>
+
+<!-- Phase 4 -->
+<div class="phase" id="phase-4">
+  <div class="phase-header" onclick="togglePhase('phase-4')">
+    <span class="phase-num">04</span>
+    <div class="phase-check" onclick="event.stopPropagation(); cycleStatus('phase-4')"></div>
+    <span class="phase-title">Student App Form — all 6 tabs, conditional logic, save draft</span>
+    <span class="phase-tag tag-heavy">Heavy</span>
+    <span class="phase-expand" id="arrow-phase-4">▸</span>
+  </div>
+  <div class="phase-body" id="body-phase-4">
+    <p class="phase-desc">The main application form. Six tabs with a progress bar, full conditional logic (cascades on health, English proficiency), and auto-save draft. The biggest single piece of work.</p>
+    <div class="effort-badge">
+      <span>Effort:</span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot filled"></span>
+      <span>Heavy — 3–4 sessions</span>
+    </div>
+    <ul class="task-list">
+      <li>Tab 1: Personal (all fields, passport cascade, children cascade)</li>
+      <li>Tab 2: Contact (family, emergency, church)</li>
+      <li>Tab 3: Education (DTS, qualifications, English proficiency cascade)</li>
+      <li>Tab 4: Health (26 conditions, disability multi-select, mental health cascade)</li>
+      <li>Tab 5: Questions (7 faith questions)</li>
+      <li>Tab 6: References (add unlimited referees, send invitations, submit gate)</li>
+      <li>Progress bar with green chips per completed tab</li>
+      <li>Auto-save draft every 30 seconds</li>
+    </ul>
+    <div class="status-row">
+      <button class="status-btn active-todo" onclick="setStatus(this, 'phase-4', 'todo')">To do</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-4', 'progress')">In progress</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-4', 'done')">Done</button>
+    </div>
+    <div class="note-label">Notes</div>
+    <textarea class="note-area" id="note-phase-4" placeholder="Add your notes here..." onchange="saveNotes()"></textarea>
+  </div>
+</div>
+
+<!-- Phase 5 -->
+<div class="phase" id="phase-5">
+  <div class="phase-header" onclick="togglePhase('phase-5')">
+    <span class="phase-num">05</span>
+    <div class="phase-check" onclick="event.stopPropagation(); cycleStatus('phase-5')"></div>
+    <span class="phase-title">Reference request system + Referee Form</span>
+    <span class="phase-tag tag-upcoming">Upcoming</span>
+    <span class="phase-expand" id="arrow-phase-5">▸</span>
+  </div>
+  <div class="phase-body" id="body-phase-5">
+    <p class="phase-desc">Email invitations to referees with unique one-time token links. Referee form with 9 sliders and written answers. No login required for referees.</p>
+    <div class="effort-badge">
+      <span>Effort:</span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot"></span>
+      <span>Medium — 1–2 sessions</span>
+    </div>
+    <ul class="task-list">
+      <li>Generate unique token per referee invitation</li>
+      <li>Send invitation email via Resend</li>
+      <li>Referee form: relationship, known-for, strengths textarea</li>
+      <li>9 sliders (0–10): relationship, contribution, faith, emotional stability, financial responsibility, flexibility, initiative, leadership, hygiene</li>
+      <li>Additional questions: dependable, aware of YWAM, children hesitation, comments</li>
+      <li>Newsletter opt-in checkbox</li>
+      <li>Token expires after submission</li>
+      <li>Reference reuse across applications (1 year validity)</li>
+    </ul>
+    <div class="status-row">
+      <button class="status-btn active-todo" onclick="setStatus(this, 'phase-5', 'todo')">To do</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-5', 'progress')">In progress</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-5', 'done')">Done</button>
+    </div>
+    <div class="note-label">Notes</div>
+    <textarea class="note-area" id="note-phase-5" placeholder="Add your notes here..." onchange="saveNotes()"></textarea>
+  </div>
+</div>
+
+<div class="section-label">Admin & Leader Portal</div>
+
+<!-- Phase 6 -->
+<div class="phase" id="phase-6">
+  <div class="phase-header" onclick="togglePhase('phase-6')">
+    <span class="phase-num">06</span>
+    <div class="phase-check" onclick="event.stopPropagation(); cycleStatus('phase-6')"></div>
+    <span class="phase-title">Admin Dashboard — quarter tabs, summary cards, instant search</span>
+    <span class="phase-tag tag-upcoming">Upcoming</span>
+    <span class="phase-expand" id="arrow-phase-6">▸</span>
+  </div>
+  <div class="phase-body" id="body-phase-6">
+    <p class="phase-desc">The rego office home screen. Quarter tabs (Q1–Q4), summary cards, colour-coded program rows, and instant search across all applicants.</p>
+    <div class="effort-badge">
+      <span>Effort:</span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot"></span>
+      <span class="effort-dot"></span>
+      <span>Light — 1 session</span>
+    </div>
+    <ul class="task-list">
+      <li>Quarter tabs Q1–Q4 + All quarters view</li>
+      <li>Summary cards: total / prayer needed / accepted / declined</li>
+      <li>Program rows with colour-coded applicant dots</li>
+      <li>Instant search by name or program</li>
+      <li>Status filter dropdown</li>
+      <li>Year selector</li>
+    </ul>
+    <div class="status-row">
+      <button class="status-btn active-todo" onclick="setStatus(this, 'phase-6', 'todo')">To do</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-6', 'progress')">In progress</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-6', 'done')">Done</button>
+    </div>
+    <div class="note-label">Notes</div>
+    <textarea class="note-area" id="note-phase-6" placeholder="Add your notes here..." onchange="saveNotes()"></textarea>
+  </div>
+</div>
+
+<!-- Phase 7 -->
+<div class="phase" id="phase-7">
+  <div class="phase-header" onclick="togglePhase('phase-7')">
+    <span class="phase-num">07</span>
+    <div class="phase-check" onclick="event.stopPropagation(); cycleStatus('phase-7')"></div>
+    <span class="phase-title">Leader Dashboards — combined school + ministry view</span>
+    <span class="phase-tag tag-upcoming">Upcoming</span>
+    <span class="phase-expand" id="arrow-phase-7">▸</span>
+  </div>
+  <div class="phase-body" id="body-phase-7">
+    <p class="phase-desc">One unified dashboard for school leaders and ministry leaders. Schools section (blue) and ministries section (green), hidden if not assigned.</p>
+    <div class="effort-badge">
+      <span>Effort:</span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot"></span>
+      <span class="effort-dot"></span>
+      <span>Light — 1 session</span>
+    </div>
+    <ul class="task-list">
+      <li>Schools section: expandable program rows, applicant list</li>
+      <li>Ministries section: assigned by rego / active staff / past staff</li>
+      <li>Pipeline counts at top</li>
+      <li>Year selector</li>
+      <li>Staff awaiting prayer decision shown at top with orange label</li>
+    </ul>
+    <div class="status-row">
+      <button class="status-btn active-todo" onclick="setStatus(this, 'phase-7', 'todo')">To do</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-7', 'progress')">In progress</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-7', 'done')">Done</button>
+    </div>
+    <div class="note-label">Notes</div>
+    <textarea class="note-area" id="note-phase-7" placeholder="Add your notes here..." onchange="saveNotes()"></textarea>
+  </div>
+</div>
+
+<!-- Phase 8 -->
+<div class="phase" id="phase-8">
+  <div class="phase-header" onclick="togglePhase('phase-8')">
+    <span class="phase-num">08</span>
+    <div class="phase-check" onclick="event.stopPropagation(); cycleStatus('phase-8')"></div>
+    <span class="phase-title">Applicant Page + three App View permission levels</span>
+    <span class="phase-tag tag-heavy">Heavy</span>
+    <span class="phase-expand" id="arrow-phase-8">▸</span>
+  </div>
+  <div class="phase-body" id="body-phase-8">
+    <p class="phase-desc">The person profile with full application history, and the three different views of application data depending on role.</p>
+    <div class="effort-badge">
+      <span>Effort:</span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot filled"></span>
+      <span>Heavy — 2–3 sessions</span>
+    </div>
+    <ul class="task-list">
+      <li>Applicant Page: person profile + all applications listed</li>
+      <li>Student App View: all own fields read-only, refs name/status only</li>
+      <li>Rego App View: everything + edit mode + admin actions + status change</li>
+      <li>Leader App View: everything + prayer decision input, no editing</li>
+      <li>Reference scores as colour-coded bars (rego + leaders)</li>
+      <li>Internal notes (rego only)</li>
+      <li>Move to program action (rego only)</li>
+      <li>Red flags banner (never students)</li>
+    </ul>
+    <div class="status-row">
+      <button class="status-btn active-todo" onclick="setStatus(this, 'phase-8', 'todo')">To do</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-8', 'progress')">In progress</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-8', 'done')">Done</button>
+    </div>
+    <div class="note-label">Notes</div>
+    <textarea class="note-area" id="note-phase-8" placeholder="Add your notes here..." onchange="saveNotes()"></textarea>
+  </div>
+</div>
+
+<div class="section-label">Pre-arrival & Staff</div>
+
+<!-- Phase 9 -->
+<div class="phase" id="phase-9">
+  <div class="phase-header" onclick="togglePhase('phase-9')">
+    <span class="phase-num">09</span>
+    <div class="phase-check" onclick="event.stopPropagation(); cycleStatus('phase-9')"></div>
+    <span class="phase-title">Pre-arrival steps + document upload + certificate issuance</span>
+    <span class="phase-tag tag-upcoming">Upcoming</span>
+    <span class="phase-expand" id="arrow-phase-9">▸</span>
+  </div>
+  <div class="phase-body" id="body-phase-9">
+    <p class="phase-desc">All 9 pre-arrival steps visible from acceptance. Students upload docs, rego marks complete or waives. Rego issues certificates.</p>
+    <div class="effort-badge">
+      <span>Effort:</span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot"></span>
+      <span>Medium — 1–2 sessions</span>
+    </div>
+    <ul class="task-list">
+      <li>9 steps: offer, deposit, passport photo, health insurance, visa, program fee, English proof, flights, completion</li>
+      <li>All visible from start, locked until conditions met</li>
+      <li>Student file uploads (Supabase Storage)</li>
+      <li>Rego: mark complete, waive, reopen any step</li>
+      <li>Flight details auto-email to rego + school leader</li>
+      <li>Certificate issuance by rego</li>
+    </ul>
+    <div class="status-row">
+      <button class="status-btn active-todo" onclick="setStatus(this, 'phase-9', 'todo')">To do</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-9', 'progress')">In progress</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-9', 'done')">Done</button>
+    </div>
+    <div class="note-label">Notes</div>
+    <textarea class="note-area" id="note-phase-9" placeholder="Add your notes here..." onchange="saveNotes()"></textarea>
+  </div>
+</div>
+
+<!-- Phase 10 -->
+<div class="phase" id="phase-10">
+  <div class="phase-header" onclick="togglePhase('phase-10')">
+    <span class="phase-num">10</span>
+    <div class="phase-check" onclick="event.stopPropagation(); cycleStatus('phase-10')"></div>
+    <span class="phase-title">Staff App Form + assignment workflow</span>
+    <span class="phase-tag tag-heavy">Heavy</span>
+    <span class="phase-expand" id="arrow-phase-10">▸</span>
+  </div>
+  <div class="phase-body" id="body-phase-10">
+    <p class="phase-desc">Staff application with Ministry tab. Rego assigns ministry and leader. Leader notified and sees application in their dashboard.</p>
+    <div class="effort-badge">
+      <span>Effort:</span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot filled"></span>
+      <span>Heavy — 2–3 sessions</span>
+    </div>
+    <ul class="task-list">
+      <li>Same 6 tabs as student form + Ministry tab</li>
+      <li>Ministry tab: support raising, start date, length of service, ministry preference</li>
+      <li>Police clearance question on Personal tab</li>
+      <li>Rego assigns ministry (may differ from preference)</li>
+      <li>Leader assigned via clickable leader cards</li>
+      <li>Leader notified by email</li>
+      <li>Staff App Prayer screen for rego prayer decision</li>
+    </ul>
+    <div class="status-row">
+      <button class="status-btn active-todo" onclick="setStatus(this, 'phase-10', 'todo')">To do</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-10', 'progress')">In progress</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-10', 'done')">Done</button>
+    </div>
+    <div class="note-label">Notes</div>
+    <textarea class="note-area" id="note-phase-10" placeholder="Add your notes here..." onchange="saveNotes()"></textarea>
+  </div>
+</div>
+
+<div class="section-label">Communications & Management</div>
+
+<!-- Phase 11 -->
+<div class="phase" id="phase-11">
+  <div class="phase-header" onclick="togglePhase('phase-11')">
+    <span class="phase-num">11</span>
+    <div class="phase-check" onclick="event.stopPropagation(); cycleStatus('phase-11')"></div>
+    <span class="phase-title">Email notification system + section builder</span>
+    <span class="phase-tag tag-upcoming">Upcoming</span>
+    <span class="phase-expand" id="arrow-phase-11">▸</span>
+  </div>
+  <div class="phase-body" id="body-phase-11">
+    <p class="phase-desc">The email compose panel with reusable sections, merge fields, status templates, and preview. Powered by Resend.</p>
+    <div class="effort-badge">
+      <span>Effort:</span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot"></span>
+      <span>Medium — 1–2 sessions</span>
+    </div>
+    <ul class="task-list">
+      <li>Email sections library (create, edit, archive)</li>
+      <li>Status templates (default pre-ticked sections per status)</li>
+      <li>Compose panel with checkboxes + freeform paragraph</li>
+      <li>Merge fields: first_name, program_name, start_date, program_fee, health_insurance_amount, rego_name</li>
+      <li>Preview before sending</li>
+      <li>Send via Resend API</li>
+      <li>Email log recorded in database</li>
+      <li>Leader notify rego modal (simple, no section builder)</li>
+    </ul>
+    <div class="status-row">
+      <button class="status-btn active-todo" onclick="setStatus(this, 'phase-11', 'todo')">To do</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-11', 'progress')">In progress</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-11', 'done')">Done</button>
+    </div>
+    <div class="note-label">Notes</div>
+    <textarea class="note-area" id="note-phase-11" placeholder="Add your notes here..." onchange="saveNotes()"></textarea>
+  </div>
+</div>
+
+<!-- Phase 12 -->
+<div class="phase" id="phase-12">
+  <div class="phase-header" onclick="togglePhase('phase-12')">
+    <span class="phase-num">12</span>
+    <div class="phase-check" onclick="event.stopPropagation(); cycleStatus('phase-12')"></div>
+    <span class="phase-title">Questionnaire management</span>
+    <span class="phase-tag tag-upcoming">Upcoming</span>
+    <span class="phase-expand" id="arrow-phase-12">▸</span>
+  </div>
+  <div class="phase-body" id="body-phase-12">
+    <p class="phase-desc">Rego manages question sets per school type. Different schools can have different question configurations.</p>
+    <div class="effort-badge">
+      <span>Effort:</span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot"></span>
+      <span class="effort-dot"></span>
+      <span>Light — 1 session</span>
+    </div>
+    <ul class="task-list">
+      <li>6 school type configurations</li>
+      <li>Rego can add, edit, reorder questions</li>
+      <li>Questions linked to school type on registration</li>
+    </ul>
+    <div class="status-row">
+      <button class="status-btn active-todo" onclick="setStatus(this, 'phase-12', 'todo')">To do</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-12', 'progress')">In progress</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-12', 'done')">Done</button>
+    </div>
+    <div class="note-label">Notes</div>
+    <textarea class="note-area" id="note-phase-12" placeholder="Add your notes here..." onchange="saveNotes()"></textarea>
+  </div>
+</div>
+
+<!-- Phase 13 -->
+<div class="phase" id="phase-13">
+  <div class="phase-header" onclick="togglePhase('phase-13')">
+    <span class="phase-num">13</span>
+    <div class="phase-check" onclick="event.stopPropagation(); cycleStatus('phase-13')"></div>
+    <span class="phase-title">Red flag system</span>
+    <span class="phase-tag tag-upcoming">Upcoming</span>
+    <span class="phase-expand" id="arrow-phase-13">▸</span>
+  </div>
+  <div class="phase-body" id="body-phase-13">
+    <p class="phase-desc">Red flag and Watch flag system. Visible to rego and leaders only — never to applicants.</p>
+    <div class="effort-badge">
+      <span>Effort:</span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot"></span>
+      <span class="effort-dot"></span>
+      <span>Light — 1 session</span>
+    </div>
+    <ul class="task-list">
+      <li>Two levels: Red flag and Watch</li>
+      <li>Flag banner on Rego App View, Leader App View, Applicant Page</li>
+      <li>Resolved flags kept in history — never deleted</li>
+      <li>Red Flags screen for rego to manage all flags</li>
+      <li>NEVER visible to the applicant — hard security rule</li>
+    </ul>
+    <div class="status-row">
+      <button class="status-btn active-todo" onclick="setStatus(this, 'phase-13', 'todo')">To do</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-13', 'progress')">In progress</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-13', 'done')">Done</button>
+    </div>
+    <div class="note-label">Notes</div>
+    <textarea class="note-area" id="note-phase-13" placeholder="Add your notes here..." onchange="saveNotes()"></textarea>
+  </div>
+</div>
+
+<!-- Phase 14 -->
+<div class="phase" id="phase-14">
+  <div class="phase-header" onclick="togglePhase('phase-14')">
+    <span class="phase-num">14</span>
+    <div class="phase-check" onclick="event.stopPropagation(); cycleStatus('phase-14')"></div>
+    <span class="phase-title">English proficiency country settings</span>
+    <span class="phase-tag tag-upcoming">Upcoming</span>
+    <span class="phase-expand" id="arrow-phase-14">▸</span>
+  </div>
+  <div class="phase-body" id="body-phase-14">
+    <p class="phase-desc">Admin-managed list of countries requiring English proficiency documentation. Warning shown on registration for flagged countries.</p>
+    <div class="effort-badge">
+      <span>Effort:</span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot"></span>
+      <span class="effort-dot"></span>
+      <span>Light — 1 session</span>
+    </div>
+    <ul class="task-list">
+      <li>Country list managed by rego (add/remove via pill tags)</li>
+      <li>Warning on registration page for flagged countries</li>
+      <li>Per-applicant manual override from Rego App View</li>
+      <li>Triggers English proficiency pre-arrival step</li>
+    </ul>
+    <div class="status-row">
+      <button class="status-btn active-todo" onclick="setStatus(this, 'phase-14', 'todo')">To do</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-14', 'progress')">In progress</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-14', 'done')">Done</button>
+    </div>
+    <div class="note-label">Notes</div>
+    <textarea class="note-area" id="note-phase-14" placeholder="Add your notes here..." onchange="saveNotes()"></textarea>
+  </div>
+</div>
+
+<div class="section-label">Go-live</div>
+
+<!-- Phase 15 -->
+<div class="phase" id="phase-15">
+  <div class="phase-header" onclick="togglePhase('phase-15')">
+    <span class="phase-num">15</span>
+    <div class="phase-check" onclick="event.stopPropagation(); cycleStatus('phase-15')"></div>
+    <span class="phase-title">Data migration from SQL Server 2019</span>
+    <span class="phase-tag tag-heavy">Heavy</span>
+    <span class="phase-expand" id="arrow-phase-15">▸</span>
+  </div>
+  <div class="phase-body" id="body-phase-15">
+    <p class="phase-desc">Migrate all existing applicant data from the old .NET system's SQL Server 2019 database into the new Supabase database. Biggest unknown — depends on data quality.</p>
+    <div class="effort-badge">
+      <span>Effort:</span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot filled"></span>
+      <span>Heavy — 2–5 sessions (unknown)</span>
+    </div>
+    <ul class="task-list">
+      <li>Connect to SQL Server 2019 via Node.js mssql package</li>
+      <li>Read and inspect old data structure</li>
+      <li>Map old fields to new schema</li>
+      <li>Transform and clean data</li>
+      <li>Run migration on test Supabase project first</li>
+      <li>Verify all data correct</li>
+      <li>Run on production</li>
+      <li>Keep old system read-only for 3 months post go-live</li>
+    </ul>
+    <div class="status-row">
+      <button class="status-btn active-todo" onclick="setStatus(this, 'phase-15', 'todo')">To do</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-15', 'progress')">In progress</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-15', 'done')">Done</button>
+    </div>
+    <div class="note-label">Notes</div>
+    <textarea class="note-area" id="note-phase-15" placeholder="Add your notes here..." onchange="saveNotes()"></textarea>
+  </div>
+</div>
+
+<!-- Phase 16 -->
+<div class="phase" id="phase-16">
+  <div class="phase-header" onclick="togglePhase('phase-16')">
+    <span class="phase-num">16</span>
+    <div class="phase-check" onclick="event.stopPropagation(); cycleStatus('phase-16')"></div>
+    <span class="phase-title">Security audit + testing + go-live</span>
+    <span class="phase-tag tag-upcoming">Upcoming</span>
+    <span class="phase-expand" id="arrow-phase-16">▸</span>
+  </div>
+  <div class="phase-body" id="body-phase-16">
+    <p class="phase-desc">Final testing, security audit of all RLS policies, connect production domain, and go live at secure.ywamperth.org.au.</p>
+    <div class="effort-badge">
+      <span>Effort:</span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot filled"></span>
+      <span class="effort-dot"></span>
+      <span>Medium — 1–2 sessions</span>
+    </div>
+    <ul class="task-list">
+      <li>Full RLS policy audit — verify no data leaks</li>
+      <li>Test all three roles: student, rego, leader</li>
+      <li>Test on mobile devices</li>
+      <li>Connect secure.ywamperth.org.au domain to Vercel production</li>
+      <li>Run database migration on ywam-production</li>
+      <li>Upgrade Supabase staging + production to Pro ($50/month)</li>
+      <li>Train rego office staff</li>
+      <li>Go live!</li>
+    </ul>
+    <div class="status-row">
+      <button class="status-btn active-todo" onclick="setStatus(this, 'phase-16', 'todo')">To do</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-16', 'progress')">In progress</button>
+      <button class="status-btn" onclick="setStatus(this, 'phase-16', 'done')">Done</button>
+    </div>
+    <div class="note-label">Notes</div>
+    <textarea class="note-area" id="note-phase-16" placeholder="Add your notes here..." onchange="saveNotes()"></textarea>
+  </div>
+</div>
+
+</main>
+
+<div class="save-notice" id="save-notice">Saved ✓</div>
+
+<script>
+  // ── State ──
+  var states = {}; // phaseId -> 'todo' | 'progress' | 'done'
+
+  function loadState() {
+    try {
+      var saved = localStorage.getItem('thegate-tracker');
+      if (saved) {
+        var data = JSON.parse(saved);
+        states = data.states || {};
+        // Restore notes
+        Object.keys(data.notes || {}).forEach(function(id) {
+          var el = document.getElementById('note-' + id);
+          if (el) el.value = data.notes[id];
+        });
+        // Restore phase states
+        Object.keys(states).forEach(function(phaseId) {
+          applyState(phaseId, states[phaseId], false);
+        });
+        // Phase 1 always done
+        applyState('phase-1', 'done', false);
+      }
+    } catch(e) {}
+    updateStats();
+  }
+
+  function saveNotes() {
+    var notes = {};
+    for (var i = 1; i <= 16; i++) {
+      var el = document.getElementById('note-phase-' + i);
+      if (el) notes['phase-' + i] = el.value;
+    }
+    localStorage.setItem('thegate-tracker', JSON.stringify({ states: states, notes: notes }));
+    showSaveNotice();
+  }
+
+  function showSaveNotice() {
+    var n = document.getElementById('save-notice');
+    n.classList.add('show');
+    setTimeout(function(){ n.classList.remove('show'); }, 1500);
+  }
+
+  // ── Toggle phase open/closed ──
+  function togglePhase(id) {
+    var body = document.getElementById('body-' + id);
+    var arrow = document.getElementById('arrow-' + id);
+    var isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    arrow.textContent = isOpen ? '▸' : '▾';
+  }
+
+  // ── Cycle status on check click ──
+  function cycleStatus(phaseId) {
+    if (phaseId === 'phase-1') return; // Phase 1 always done
+    var current = states[phaseId] || 'todo';
+    var next = current === 'todo' ? 'done' : current === 'progress' ? 'done' : 'todo';
+    setStatusDirect(phaseId, next);
+  }
+
+  function setStatus(btn, phaseId, status) {
+    setStatusDirect(phaseId, status);
+  }
+
+  function setStatusDirect(phaseId, status) {
+    states[phaseId] = status;
+    applyState(phaseId, status, true);
+    saveNotes();
+  }
+
+  function applyState(phaseId, status, animate) {
+    var phase = document.getElementById(phaseId);
+    var check = phase.querySelector('.phase-check');
+    var tag = phase.querySelector('.phase-tag');
+    var btns = phase.querySelectorAll('.status-btn');
+
+    // Reset
+    check.className = 'phase-check';
+    check.textContent = '';
+    phase.className = 'phase';
+
+    if (status === 'done') {
+      check.classList.add('checked');
+      phase.classList.add('done');
+      if (tag) { tag.className = 'phase-tag tag-done'; tag.textContent = 'Done'; }
+    } else if (status === 'progress') {
+      check.classList.add('inprogress');
+      phase.classList.add('active');
+      if (tag) { tag.className = 'phase-tag tag-next'; tag.textContent = 'In progress'; }
+    } else {
+      if (tag && phaseId === 'phase-2') {
+        tag.className = 'phase-tag tag-next'; tag.textContent = 'Up next';
+      } else if (tag) {
+        // Keep original tag
+      }
+    }
+
+    // Update status buttons
+    btns.forEach(function(b) {
+      b.className = 'status-btn';
+      var s = b.getAttribute('onclick').match(/'([^']+)'\)$/)[1];
+      if (s === status) {
+        b.classList.add('active-' + (status === 'done' ? 'done' : status === 'progress' ? 'progress' : 'todo'));
+      }
+    });
+
+    updateStats();
+  }
+
+  function updateStats() {
+    var done = 0;
+    // Count phase-1 always done
+    done = 1;
+    for (var i = 2; i <= 16; i++) {
+      if (states['phase-' + i] === 'done') done++;
+    }
+    document.getElementById('stat-done').textContent = done;
+    var pct = Math.round((done / 16) * 100);
+    document.getElementById('stat-pct').textContent = pct + '%';
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+
+  // ── Init ──
+  loadState();
+
+  // Auto-save notes on input
+  document.querySelectorAll('.note-area').forEach(function(el) {
+    el.addEventListener('input', function() {
+      clearTimeout(el._saveTimer);
+      el._saveTimer = setTimeout(saveNotes, 800);
+    });
+  });
+</script>
+</body>
+</html>
